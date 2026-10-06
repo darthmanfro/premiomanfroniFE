@@ -34,8 +34,13 @@ function App() {
                 onClose={() => setNotification({ message: '', type: 'error' })}
             />
 
+
             {isAuthenticated ? (
-                <PrizeList onLogout={handleLogout} showNotification={showNotification} />
+                <PrizeList
+                    onLogout={handleLogout}
+                    showNotification={showNotification}
+                    setLoading={setLoading}
+                />
             ) : (
                 <Auth
                     onLoginSuccess={() => setIsAuthenticated(true)}
