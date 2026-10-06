@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { apiFetch } from '../services/api';
 
-export function Auth({ onLoginSuccess, showNotification }) {
-    const [tab, setTab] = useState('login'); // 'login' oppure 'register'
+export function Auth({ onLoginSuccess, showNotification, setLoading }) {
+    const [tab, setTab] = useState('login');
 
-    // Campi form
     const [loginUser, setLoginUser] = useState('');
     const [loginPass, setLoginPass] = useState('');
 
@@ -14,6 +13,7 @@ export function Auth({ onLoginSuccess, showNotification }) {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true, "Autenticazione in corso...");
         try {
             const data = await apiFetch('/auth/login', {
                 method: 'POST',
@@ -26,32 +26,35 @@ export function Auth({ onLoginSuccess, showNotification }) {
             onLoginSuccess();
         } catch (err) {
             showNotification(err.message, 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
         if (regPass !== regConfirmPass) {
-            showNotification('Le password non coincidono', 'error');
+            showNotification('Le password non совпадаono', 'error');
             return;
         }
 
+        setLoading(true, "Registrazione in corso...");
         try {
             await apiFetch('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify({ username: regUser, password: regPass }),
             });
 
-            // Reset form di registrazione
             setRegUser('');
             setRegPass('');
             setRegConfirmPass('');
 
-            // Torna al login e mostra successo
             setTab('login');
             showNotification('Registrazione completata! Ora puoi effettuare il login.', 'success');
         } catch (err) {
             showNotification(err.message, 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -76,14 +79,18 @@ export function Auth({ onLoginSuccess, showNotification }) {
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <input type="text" placeholder="Username" value={loginUser} onChange={(e) => setLoginUser(e.target.value)} required style={{ padding: '8px' }} />
                     <input type="password" placeholder="Password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} required style={{ padding: '8px' }} />
-                    <button type="submit" style={{ padding: '10px', background: '#2b580c', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Login</button>
+                    <button type="submit" style={{ padding: '10px', background: '#2b580c', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                        Login
+                    </button>
                 </form>
             ) : (
                 <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <input type="text" placeholder="Username" value={regUser} onChange={(e) => setRegUser(e.target.value)} required style={{ padding: '8px' }} />
                     <input type="password" placeholder="Password" value={regPass} onChange={(e) => setRegPass(e.target.value)} required style={{ padding: '8px' }} />
                     <input type="password" placeholder="Ripeti Password" value={regConfirmPass} onChange={(e) => setRegConfirmPass(e.target.value)} required style={{ padding: '8px' }} />
-                    <button type="submit" style={{ padding: '10px', background: '#2b580c', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Registrati</button>
+                    <button type="submit" style={{ padding: '10px', background: '#2b580c', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                        Registrati
+                    </button>
                 </form>
             )}
         </div>
