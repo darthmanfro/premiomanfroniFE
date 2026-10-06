@@ -1,0 +1,31 @@
+name: Build React App Artifact
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del codice
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Installazione Dipendenze
+        run: npm ci
+
+      - name: Compilazione React (Build)
+        run: npm run build
+
+      - name: Upload Artifact (dist)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-build
+          path: dist
